@@ -1,6 +1,9 @@
 @tool
 extends EditorPlugin
 
+var terrain: TerrainChunk2D = null
+var left_button_held := false
+
 func _enter_tree():
 	# Plugin must be active
 	EditorInterface.get_selection().selection_changed.connect(_selection_changed)
@@ -13,9 +16,6 @@ func _exit_tree() -> void:
 	# Disconnect signals to avoid dangling references
 	EditorInterface.get_selection().selection_changed.disconnect(_selection_changed)
 	print("Terrain Painter plugin disabled")
-
-
-var terrain: TerrainChunk2D = null
 
 
 func _selection_changed() -> void:
@@ -44,12 +44,20 @@ func _forward_canvas_gui_input(event) -> bool:
 		print('[ERROR] No materials!')
 		return false
  
-	var mat_index = 1  # safe now
+	var mat_index = 0  # safe now
+	var local_pos = _get_local_from_viewport(event)
 
-   # Handle left-click paint
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		terrain.paint(mat_index, event.position)
-		return true  # <--- THIS IS CRUCIAL
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			left_button_held = event.pressed
+			if left_button_held:
+				terrain.paint(mat_index, local_pos)
+			return true
+
+	elif event is InputEventMouseMotion:
+		if left_button_held:
+			terrain.paint(mat_index, local_pos)
+			return true
 
 	return false
 
@@ -66,3 +74,9 @@ func _forward_canvas_draw_over_viewport(overlay) -> void:
 		
 	var mouse = overlay.get_local_mouse_position()
 	overlay.draw_circle(mouse, terrain.brush_radius, Color(0,0,0,0.8))
+
+
+func _get_local_from_viewport(event: InputEventMouse) -> Vector2:
+	var mouse_pos = EditorInterface.get_editor_viewport_2d().get_mouse_position()
+	
+	return mouse_pos

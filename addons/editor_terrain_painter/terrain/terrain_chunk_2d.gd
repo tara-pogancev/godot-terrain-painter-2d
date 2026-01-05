@@ -64,7 +64,6 @@ var erase : bool = false
 
 
 func paint(material_index: int, world_pos: Vector2) -> void:
-	print(material_index, world_pos)
 	if material_index < 0 or material_index >= materials.size():
 		return
 
