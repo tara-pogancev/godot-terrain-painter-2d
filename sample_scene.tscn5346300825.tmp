@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://hcrmi3bx2xsb"]
+
+[ext_resource type="Script" uid="uid://nsdbp3a2b12m" path="res://addons/editor_terrain_painter/terrain/terrain_chunk_2d.gd" id="1_k4liu"]
+[ext_resource type="Script" uid="uid://cnltxqowu8174" path="res://sample_scene.gd" id="1_ohetr"]
+
+[node name="SampleScene" type="Node2D"]
+script = ExtResource("1_ohetr")
+
+[node name="TerrainChunk2D" type="Node2D" parent="."]
+script = ExtResource("1_k4liu")
+metadata/_custom_type_script = "uid://nsdbp3a2b12m"
