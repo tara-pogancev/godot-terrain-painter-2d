@@ -44,7 +44,7 @@ func _forward_canvas_gui_input(event) -> bool:
 		print('[ERROR] No materials!')
 		return false
  
-	var mat_index = 1  # safe now
+	var mat_index = 0  # safe now
 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:

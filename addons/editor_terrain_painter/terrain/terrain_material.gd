@@ -5,3 +5,4 @@ class_name TerrainMaterial
 
 @export var name: String
 @export var texture: Texture2D
+@export var scale: float = 1

@@ -1,16 +1,22 @@
 shader_type canvas_item;
 
-uniform sampler2D tex0;   // grass texture
-uniform sampler2D tex1;   // stone texture
+/* ========= TEXTURES ========= */
+uniform sampler2D tex0;
+uniform sampler2D tex1;
 
-uniform sampler2D mask0;  // grass mask
-uniform sampler2D mask1;  // stone mask
+uniform sampler2D mask0;
+uniform sampler2D mask1;
 
 void fragment() {
-    vec4 base = texture(tex0, UV);
-    vec4 overlay = texture(tex1, UV);
+    // Sample the textures using UVs
+    vec4 c0 = texture(tex0, UV);
+    vec4 c1 = texture(tex1, UV);
 
-    float m = texture(mask1, UV).r;
+    // Sample the masks
+    float m0 = texture(mask0, UV).r;
+    float m1 = texture(mask1, UV).r;
 
-    COLOR = mix(base, overlay, m);
+    // Blend textures by mask
+    float total = m0 + m1 + 0.0001; // avoid divide by zero
+    COLOR = (c0 * m0 + c1 * m1) / total;
 }

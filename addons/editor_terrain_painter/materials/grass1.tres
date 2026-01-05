@@ -6,6 +6,6 @@
 [resource]
 resource_name = "Grass"
 script = ExtResource("1_tt8vt")
-id = "1"
+name = "Stone"
 texture = ExtResource("2_qwcbo")
 metadata/_custom_type_script = "uid://dk62ewqw1isst"
