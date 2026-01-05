@@ -44,18 +44,19 @@ func _forward_canvas_gui_input(event) -> bool:
 		print('[ERROR] No materials!')
 		return false
  
-	var mat_index = 0  # safe now
-	var local_pos = _get_local_from_viewport(event)
+	var mat_index = 1  # safe now
 
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			left_button_held = event.pressed
 			if left_button_held:
+				var local_pos = _get_local_from_viewport(event)
 				terrain.paint(mat_index, local_pos)
 			return true
 
 	elif event is InputEventMouseMotion:
 		if left_button_held:
+			var local_pos = _get_local_from_viewport(event)
 			terrain.paint(mat_index, local_pos)
 			return true
 

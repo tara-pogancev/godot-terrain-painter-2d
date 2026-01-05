@@ -7,3 +7,4 @@
 script = ExtResource("1_ohetr")
 
 [node name="TerrainChunk2D" parent="." instance=ExtResource("2_ohetr")]
+size = Vector2i(800, 600)

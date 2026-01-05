@@ -5,12 +5,17 @@ class_name TerrainChunk2D
 const GRASS = preload("uid://ov37xepe02p1")
 const STONE_PATH_1 = preload("uid://7qvomux41l70")
 
-@export var size := 1024
+@export var size: Vector2i = Vector2i(1024, 1024) :
+	set(value):
+		if value == size:
+			return
+		size = value
+		_rebuild()
+		
 @export var materials: Array[TerrainMaterial] = [
 	GRASS,
 	STONE_PATH_1
 ]
-
 
 @onready var sprite: Sprite2D = $TerrainTexture
 
@@ -25,36 +30,16 @@ func _ready():
 	sprite.centered = false
 	sprite.position = Vector2.ZERO
 	sprite.scale = Vector2.ONE
-	
-	masks.clear()
-	mask_textures.clear()
 
-	# Create base texture
-	var base = Image.create(size, size, false, Image.FORMAT_RGBA8)
-	base.fill(Color.BLACK)
-
-	var base_tex = ImageTexture.create_from_image(base)
-	sprite.texture = base_tex
-
-	# Shader material
 	shader_material = ShaderMaterial.new()
 	shader_material.shader = TERRAIN_PAINTER_SHADER
 	sprite.material = shader_material
 
-	_init_materials()
+	_rebuild()
 
-	shader_material.set_shader_parameter("mask0", mask_textures[0])
-	shader_material.set_shader_parameter("mask1", mask_textures[1])
-
-
-
-func _init_materials():
-	for m in materials:
-		var mask = Image.create(size, size, false, Image.FORMAT_RGBA8)
-		mask.fill(Color(0,0,0))
-		masks.append(mask)
-		var tex = ImageTexture.create_from_image(mask)
-		mask_textures.append(tex)
+	# Bind terrain textures
+	for i in materials.size():
+		shader_material.set_shader_parameter("tex%d" % i, materials[i].texture)
 
 
 var brush_radius := 32
@@ -80,7 +65,7 @@ func paint(material_index: int, world_pos: Vector2) -> void:
 			var p = center + Vector2i(x, y)
 
 			# Skip out-of-bounds
-			if p.x < 0 or p.y < 0 or p.x >= size or p.y >= size:
+			if p.x < 0 or p.y < 0 or p.x >= size.x or p.y >= size.y:
 				continue
 
 			# Distance from brush center
@@ -105,3 +90,43 @@ func paint(material_index: int, world_pos: Vector2) -> void:
 	tex.update(mask)
 	shader_material.set_shader_parameter("mask%d" % material_index, tex)
 	queue_redraw()
+
+
+func _rebuild() -> void:
+	if !is_inside_tree():
+		return
+
+	# --- Base texture ---
+	var base := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
+	base.fill(Color.BLACK)
+	sprite.texture = ImageTexture.create_from_image(base)
+
+	# --- Resize masks safely ---
+	var new_masks: Array[Image] = []
+	var new_mask_textures: Array[ImageTexture] = []
+
+	for i in materials.size():
+		var old_mask: Image = masks[i] if i < masks.size() else null
+
+		var new_mask := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
+		new_mask.fill(Color(0, 0, 0))
+
+		if old_mask:
+			var copy_w = min(old_mask.get_width(), size.x)
+			var copy_h = min(old_mask.get_height(), size.y)
+
+			new_mask.blit_rect(
+				old_mask,
+				Rect2i(0, 0, copy_w, copy_h),
+				Vector2i.ZERO
+			)
+
+		new_masks.append(new_mask)
+		new_mask_textures.append(ImageTexture.create_from_image(new_mask))
+
+	masks = new_masks
+	mask_textures = new_mask_textures
+
+	# --- Rebind shader params ---
+	for i in materials.size():
+		shader_material.set_shader_parameter("mask%d" % i, mask_textures[i])
