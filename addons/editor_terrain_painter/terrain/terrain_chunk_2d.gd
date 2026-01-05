@@ -1,5 +1,5 @@
 @tool
-extends Node2D
+extends Sprite2D
 class_name TerrainChunk2D
 
 const GRASS = preload("uid://ov37xepe02p1")
@@ -18,15 +18,11 @@ const STONE_PATH_1 = preload("uid://7qvomux41l70")
 	STONE_PATH_1
 ] : 
 	set(value):
-		if value == materials:
-			return
 		materials = value
 		_rebuild()
 		_apply_shader_params()
 		
 @export var tile_size:  int = 24
-
-@onready var sprite: Sprite2D = $TerrainTexture
 
 
 var masks: Array[Image] = []
@@ -36,15 +32,18 @@ var shader_material: ShaderMaterial
 
 const TERRAIN_PAINTER_SHADER = preload("uid://byiiy22ewy1o2")
 
-func _ready():
-	sprite.centered = false
-	sprite.position = Vector2.ZERO
-	sprite.scale = Vector2.ONE
+
+func _enter_tree():
+	print('hii')
+	self.size = size
+	self.centered = false
+	self.position = Vector2.ZERO
+	self.scale = Vector2.ONE
 
 	shader_material = ShaderMaterial.new()
 	shader_material.shader = TERRAIN_PAINTER_SHADER
-	sprite.material = shader_material
-
+	self.material = shader_material
+	
 	_rebuild()
 	_apply_shader_params()
 
@@ -56,7 +55,7 @@ func _rebuild() -> void:
 	# --- Base sprite texture ---
 	var base := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
 	base.fill(Color.BLACK)
-	sprite.texture = ImageTexture.create_from_image(base)
+	self.texture = ImageTexture.create_from_image(base)
 
 	# --- Resize masks safely ---
 	var new_masks: Array[Image] = []
@@ -100,15 +99,12 @@ func _apply_shader_params():
 
 		# Terrain texture (color)
 		if mat.texture:
-			#mat.texture.repeat = Texture2D.REPEAT_ENABLED
-			#mat.texture.filter = Texture2D.FILTER_NEAREST # optional
+			print(mat.scale)
 			shader_material.set_shader_parameter("tex%d" % i, mat.texture)
+			shader_material.set_shader_parameter("scale%d" % i, mat.scale)
 
 		# Mask texture (NO repeat)
 		shader_material.set_shader_parameter("mask%d" % i, mask_textures[i])
-
-		# Scale
-		#shader_material.set_shader_parameter("scale%d" % i, mat.scale)
 
 
 var brush_radius := 32

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TerrainMaterial" load_steps=3 format=3 uid="uid://ov37xepe02p1"]
+
+[ext_resource type="Script" uid="uid://dk62ewqw1isst" path="res://addons/editor_terrain_painter/terrain/terrain_material.gd" id="1_qdjol"]
+[ext_resource type="Texture2D" uid="uid://eo2grfh5dqqh" path="res://addons/editor_terrain_painter/assets/ground1.png" id="2_8egfw"]
+
+[resource]
+script = ExtResource("1_qdjol")
+name = "Stone"
+texture = ExtResource("2_8egfw")
+metadata/_custom_type_script = "uid://dk62ewqw1isst"
